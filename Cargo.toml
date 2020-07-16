@@ -1,0 +1,18 @@
+[package]
+name = "midimon"
+version = "0.1.0"
+authors = ["Oliver Rockstedt <info@sourcebox.de>"]
+edition = "2018"
+description = "Terminal MIDI Monitor"
+readme = "README.md"
+keywords = ["MIDI", "Monitor", "Terminal"]
+license = "MIT"
+categories = ["command-line-utilities", "multimedia"]
+
+[dependencies]
+clap = "2"
+midir = "0.6.0"
+num_enum = "0.5.0"
+
+[profile.release]
+lto = true

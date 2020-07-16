@@ -1,0 +1,10 @@
+# Build output
+/target
+
+# IDE files
+.vscode/*
+!.vscode/*.md
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+

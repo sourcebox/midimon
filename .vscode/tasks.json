@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"label": "cargo build"
+		},
+		{
+			"type": "cargo",
+			"command": "clippy",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "none",
+			"label": "cargo clippy"
+		}
+	]
+}

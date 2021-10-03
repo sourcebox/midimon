@@ -133,50 +133,47 @@ fn main() {
             reset: false,
         };
 
-        match matches.values_of("ignore") {
-            Some(ignores) => {
-                for i in ignores {
-                    match i {
-                        "note" => ignore.note = true,
-                        "polyat" => ignore.poly_pressure = true,
-                        "cc" => ignore.control_change = true,
-                        "pc" => ignore.program_change = true,
-                        "at" => ignore.channel_pressure = true,
-                        "pb" => ignore.pitch_bend = true,
-                        "sysex" => ignore.sysex = true,
-                        "clock" => ignore.clock = true,
-                        "sensing" => ignore.sensing = true,
-                        "realtime" => {
-                            ignore.clock = true;
-                            ignore.start = true;
-                            ignore.continue_ = true;
-                            ignore.stop = true;
-                            ignore.sensing = true;
-                            ignore.reset = true;
-                        }
-                        "transport" => {
-                            ignore.start = true;
-                            ignore.continue_ = true;
-                            ignore.stop = true;
-                        }
-                        "system" => {
-                            ignore.sysex = true;
-                            ignore.mtc_frame = true;
-                            ignore.song_pos_pointer = true;
-                            ignore.song_select = true;
-                            ignore.tune_request = true;
-                            ignore.clock = true;
-                            ignore.start = true;
-                            ignore.continue_ = true;
-                            ignore.stop = true;
-                            ignore.sensing = true;
-                            ignore.reset = true;
-                        }
-                        &_ => (),
+        if let Some(ignores) = matches.values_of("ignore") {
+            for i in ignores {
+                match i {
+                    "note" => ignore.note = true,
+                    "polyat" => ignore.poly_pressure = true,
+                    "cc" => ignore.control_change = true,
+                    "pc" => ignore.program_change = true,
+                    "at" => ignore.channel_pressure = true,
+                    "pb" => ignore.pitch_bend = true,
+                    "sysex" => ignore.sysex = true,
+                    "clock" => ignore.clock = true,
+                    "sensing" => ignore.sensing = true,
+                    "realtime" => {
+                        ignore.clock = true;
+                        ignore.start = true;
+                        ignore.continue_ = true;
+                        ignore.stop = true;
+                        ignore.sensing = true;
+                        ignore.reset = true;
                     }
+                    "transport" => {
+                        ignore.start = true;
+                        ignore.continue_ = true;
+                        ignore.stop = true;
+                    }
+                    "system" => {
+                        ignore.sysex = true;
+                        ignore.mtc_frame = true;
+                        ignore.song_pos_pointer = true;
+                        ignore.song_select = true;
+                        ignore.tune_request = true;
+                        ignore.clock = true;
+                        ignore.start = true;
+                        ignore.continue_ = true;
+                        ignore.stop = true;
+                        ignore.sensing = true;
+                        ignore.reset = true;
+                    }
+                    &_ => (),
                 }
             }
-            None => (),
         };
 
         let filter = MessageFilter {
@@ -320,7 +317,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
             ignore_info.push("Reset".to_string());
         }
 
-        if ignore_info.len() > 0 {
+        if !ignore_info.is_empty() {
             println!("Ignoring {}", ignore_info.join(", "));
         }
 
@@ -354,90 +351,72 @@ fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
         message[0] & 0xF0
     };
 
-    if args.ignore.note {
-        if status == Status::NoteOff as u8 || status == Status::NoteOn as u8 {
-            return;
-        }
+    if args.ignore.note && (status == Status::NoteOff as u8 || status == Status::NoteOn as u8) {
+        return;
     }
-    if args.ignore.poly_pressure {
-        if status == Status::PolyKeyPressure as u8 {
-            return;
-        }
+
+    if args.ignore.poly_pressure && (status == Status::PolyKeyPressure as u8) {
+        return;
     }
-    if args.ignore.control_change {
-        if status == Status::ControlChange as u8 {
-            return;
-        }
+
+    if args.ignore.control_change && (status == Status::ControlChange as u8) {
+        return;
     }
-    if args.ignore.program_change {
-        if status == Status::ProgramChange as u8 {
-            return;
-        }
+
+    if args.ignore.program_change && (status == Status::ProgramChange as u8) {
+        return;
     }
-    if args.ignore.channel_pressure {
-        if status == Status::ChannelPressure as u8 {
-            return;
-        }
+
+    if args.ignore.channel_pressure && (status == Status::ChannelPressure as u8) {
+        return;
     }
-    if args.ignore.pitch_bend {
-        if status == Status::PitchBend as u8 {
-            return;
-        }
+
+    if args.ignore.pitch_bend && (status == Status::PitchBend as u8) {
+        return;
     }
-    if args.ignore.sysex {
-        if status == Status::SystemExclusive as u8 {
-            return;
-        }
+
+    if args.ignore.sysex && (status == Status::SystemExclusive as u8) {
+        return;
     }
-    if args.ignore.mtc_frame {
-        if status == Status::MtcQuarterFrame as u8 {
-            return;
-        }
+
+    if args.ignore.mtc_frame && (status == Status::MtcQuarterFrame as u8) {
+        return;
     }
-    if args.ignore.song_pos_pointer {
-        if status == Status::SongPositionPointer as u8 {
-            return;
-        }
+
+    if args.ignore.song_pos_pointer && (status == Status::SongPositionPointer as u8) {
+        return;
     }
-    if args.ignore.song_select {
-        if status == Status::SongSelect as u8 {
-            return;
-        }
+
+    if args.ignore.song_select && (status == Status::SongSelect as u8) {
+        return;
     }
-    if args.ignore.tune_request {
-        if status == Status::TuneRequest as u8 {
-            return;
-        }
+
+    if args.ignore.tune_request && (status == Status::TuneRequest as u8) {
+        return;
     }
-    if args.ignore.clock {
-        if status == Status::TimingClock as u8 {
-            return;
-        }
+
+    if args.ignore.clock && (status == Status::TimingClock as u8) {
+        return;
     }
-    if args.ignore.start {
-        if status == Status::Start as u8 {
-            return;
-        }
+
+    if args.ignore.start && (status == Status::Start as u8) {
+        return;
     }
-    if args.ignore.continue_ {
-        if status == Status::Continue as u8 {
-            return;
-        }
+
+    if args.ignore.continue_ && (status == Status::Continue as u8) {
+        return;
     }
-    if args.ignore.stop {
-        if status == Status::Stop as u8 {
-            return;
-        }
+
+    if args.ignore.stop && (status == Status::Stop as u8) {
+        return;
     }
-    if args.ignore.sensing {
-        if status == Status::ActiveSensing as u8 {
-            return;
-        }
+
+    if args.ignore.sensing && (status == Status::ActiveSensing as u8) {
+        return;
     }
-    if args.ignore.reset {
-        if status == Status::SystemReset as u8 {
-            return;
-        }
+
+    if args.ignore.reset && (status == Status::SystemReset as u8) {
+        return;
     }
 
     if let Some(channel) = args.filter.channel {

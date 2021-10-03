@@ -1,13 +1,13 @@
 [package]
-name = "midimon"
-version = "0.1.0"
 authors = ["Oliver Rockstedt <info@sourcebox.de>"]
-edition = "2018"
+categories = ["command-line-utilities", "multimedia"]
 description = "Terminal MIDI Monitor"
-readme = "README.md"
+edition = "2018"
 keywords = ["MIDI", "Monitor", "Terminal"]
 license = "MIT"
-categories = ["command-line-utilities", "multimedia"]
+name = "midimon"
+readme = "README.md"
+version = "0.1.1"
 
 [dependencies]
 clap = "2"

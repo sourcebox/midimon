@@ -3,6 +3,7 @@ authors = ["Oliver Rockstedt <info@sourcebox.de>"]
 categories = ["command-line-utilities", "multimedia"]
 description = "Terminal MIDI Monitor"
 edition = "2018"
+rust-version = "1.59"
 keywords = ["MIDI", "Monitor", "Terminal"]
 license = "MIT"
 name = "midimon"

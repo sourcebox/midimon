@@ -10,7 +10,7 @@ for the low-level parts.
 
 ## Build
 
-- [Rust toolchain](https://www.rust-lang.org/) (tested with version 1.44)
+- [Rust toolchain](https://www.rust-lang.org/)
 
 Use `cargo build` to compile or `cargo run` to compile and run.
 
@@ -22,12 +22,11 @@ Use `cargo build` to compile or `cargo run` to compile and run.
 
 Other OS versions will most likely work, but were not tested explicitly.
 
-
 # Basic usage
 
 To monitor all messages from any input port, run the command without any options.
 
-    $ ./midimon
+    ./midimon
 
 Use *Ctrl-C* to stop.
 
@@ -35,7 +34,7 @@ Use *Ctrl-C* to stop.
 
 The `h` or `--help` flag will give you an overview about all available options.
 
-    $ ./midimon --help
+    ./midimon --help
 
 # Options
 
@@ -43,7 +42,7 @@ The `h` or `--help` flag will give you an overview about all available options.
 
 This subcommand shows a list of all available input ports and their numerical ids. The ids are used as abbreviation in the messages list and for the port filter option.
 
-    $ ./midimon list
+    ./midimon list
 
 ## Monitor a single port
 
@@ -51,7 +50,7 @@ The option `-p` or `--port` restricts monitoring to a single input port.
 
 Example:
 
-    $ ./midimon -p 3
+    ./midimon -p 3
 
 This will show messages from port id 3 only. To find out which physical port refers to each numerical id, use the `list` subcommand.
 
@@ -76,7 +75,7 @@ Possible types:
 
 Example:
 
-    $ ./midimon -i clock sensing
+    ./midimon -i clock sensing
 
 This will ignore incoming clock and active sensing messages.
 
@@ -86,7 +85,7 @@ Use the option `-c` or `--channel` to display only messages from a single channe
 
 Example:
 
-    $ ./midimon -c 10
+    ./midimon -c 10
 
 This will only show messages from MIDI channel 10.
 
@@ -107,19 +106,19 @@ Use the option `-f` or  `--format` to select an alternate display format.
 
 Example:
 
-    $ ./midimon -f raw
+    ./midimon -f raw
 
 Shows the each message in an uninterpreted list-style format.
 
 Example:
 
-    $ ./midimon -f min
+    ./midimon -f min
 
-Monitor messages using a bare minimum display format. 
+Monitor messages using a bare minimum display format.
 
 Example:
 
-    $ ./midimon -f min-hex
+    ./midimon -f min-hex
 
 Same as the `-f min` option, but with hexadecimal output format.
 
@@ -134,6 +133,6 @@ use some combination of arguments and a shell redirect.
 
 Example:
 
-    $ ./midimon -f min-hex -p 1 -q > midi_capture.txt
+    ./midimon -f min-hex -p 1 -q > midi_capture.txt
 
 *Note:* This will only work with shells like bash that support redirects.

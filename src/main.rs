@@ -479,7 +479,7 @@ fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
         | Status::Continue
         | Status::Stop
         | Status::ActiveSensing
-        | Status::SystemReset => format!(""),
+        | Status::SystemReset => String::new(),
         _ => format!("{:?}", msg.data),
     };
 

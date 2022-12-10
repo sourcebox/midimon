@@ -1,15 +1,15 @@
 [package]
-authors = ["Oliver Rockstedt <info@sourcebox.de>"]
-categories = ["command-line-utilities", "multimedia"]
-description = "Terminal MIDI Monitor"
-edition = "2018"
-rust-version = "1.59"
-keywords = ["MIDI", "Monitor", "Terminal"]
-license = "MIT"
 name = "midimon"
+version = "0.1.2"
+edition = "2018"
+rust-version = "1.60"
+authors = ["Oliver Rockstedt <info@sourcebox.de>"]
+description = "Terminal MIDI Monitor"
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/sourcebox/midimon"
-version = "0.1.2"
+categories = ["command-line-utilities", "multimedia"]
+keywords = ["midi", "monitor", "terminal"]
 
 [dependencies]
 clap = "4.0"

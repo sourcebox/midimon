@@ -123,7 +123,7 @@ fn main() {
                 "raw" => DisplayFormat::Raw,
                 "min" => DisplayFormat::Min,
                 "min-hex" => DisplayFormat::MinHex,
-                "default" | _ => DisplayFormat::Default,
+                _ => DisplayFormat::Default,
             };
 
             let mut ignore = MessageIgnore {

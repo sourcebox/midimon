@@ -3,7 +3,7 @@ extern crate midir;
 
 mod messages;
 
-use clap::{value_t, App, Arg, SubCommand};
+use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
 use messages::{MidiMessage, Status};
 use midir::{ConnectError, MidiInput, MidiInputConnection};
 
@@ -46,156 +46,180 @@ struct MessageFilter {
 
 /// Application main function
 fn main() {
-    let app = App::new("MIDI monitor")
+    let command = Command::new("MIDI monitor")
         .version("0.1")
         .author("Oliver Rockstedt <info@sourcebox.de>")
         .arg(
-            Arg::with_name("port")
-                .short("p")
+            Arg::new("port")
+                .short('p')
                 .long("port")
                 .value_name("ID")
-                .help("Monitor single port"),
+                .help("Monitor single port")
+                .value_parser(value_parser!(u8)),
         )
         .arg(
-            Arg::with_name("ignore")
-                .short("i")
+            Arg::new("ignore")
+                .short('i')
                 .long("ignore")
                 .value_name("TYPE")
-                .multiple(true)
+                .num_args(0..)
                 .help("Ignore certain message types")
-                .possible_values(&[
-                    "note",
-                    "polyat",
-                    "cc",
-                    "pc",
-                    "at",
-                    "pb",
-                    "sysex",
-                    "clock",
-                    "sensing",
-                    "realtime",
-                    "transport",
-                    "system",
+                .value_parser([
+                    PossibleValue::new("note"),
+                    PossibleValue::new("polyat"),
+                    PossibleValue::new("cc"),
+                    PossibleValue::new("pc"),
+                    PossibleValue::new("at"),
+                    PossibleValue::new("pb"),
+                    PossibleValue::new("sysex"),
+                    PossibleValue::new("clock"),
+                    PossibleValue::new("sensing"),
+                    PossibleValue::new("realtime"),
+                    PossibleValue::new("transport"),
+                    PossibleValue::new("system"),
                 ]),
         )
         .arg(
-            Arg::with_name("channel")
-                .short("c")
+            Arg::new("channel")
+                .short('c')
                 .long("channel")
                 .value_name("CHANNEL")
-                .help("Show only messages from specified channel"),
+                .help("Show only messages from specified channel")
+                .value_parser(value_parser!(u8)),
         )
         .arg(
-            Arg::with_name("format")
-                .short("f")
+            Arg::new("format")
+                .short('f')
                 .long("format")
                 .value_name("FORMAT")
                 .help("Display format")
-                .possible_values(&["default", "raw", "min", "min-hex"]),
+                .default_value("default")
+                .value_parser([
+                    PossibleValue::new("default"),
+                    PossibleValue::new("raw"),
+                    PossibleValue::new("min"),
+                    PossibleValue::new("min-hex"),
+                ]),
         )
         .arg(
-            Arg::with_name("quiet")
-                .short("q")
+            Arg::new("quiet")
+                .short('q')
                 .long("quiet")
+                .action(ArgAction::SetTrue)
                 .help("Suppress additional output"),
         )
-        .subcommand(SubCommand::with_name("list").about("List available input ports"));
+        .subcommand(Command::new("list").about("List available input ports"));
 
-    let matches = app.get_matches();
+    let matches = command.get_matches();
 
-    let result = if matches.is_present("list") {
-        list_ports()
-    } else {
-        let format = match matches.value_of("format") {
-            Some("raw") => DisplayFormat::Raw,
-            Some("min") => DisplayFormat::Min,
-            Some("min-hex") => DisplayFormat::MinHex,
-            Some("default") | Some(&_) | None => DisplayFormat::Default,
-        };
+    let result = match matches.subcommand() {
+        Some(("list", _)) => list_ports(),
+        _ => {
+            let format = match matches
+                .get_one::<String>("format")
+                .expect("Format spec missing")
+                .as_str()
+            {
+                "raw" => DisplayFormat::Raw,
+                "min" => DisplayFormat::Min,
+                "min-hex" => DisplayFormat::MinHex,
+                "default" | _ => DisplayFormat::Default,
+            };
 
-        let mut ignore = MessageIgnore {
-            note: false,
-            poly_pressure: false,
-            control_change: false,
-            program_change: false,
-            channel_pressure: false,
-            pitch_bend: false,
-            sysex: false,
-            mtc_frame: false,
-            song_pos_pointer: false,
-            song_select: false,
-            tune_request: false,
-            clock: false,
-            start: false,
-            continue_: false,
-            stop: false,
-            sensing: false,
-            reset: false,
-        };
+            let mut ignore = MessageIgnore {
+                note: false,
+                poly_pressure: false,
+                control_change: false,
+                program_change: false,
+                channel_pressure: false,
+                pitch_bend: false,
+                sysex: false,
+                mtc_frame: false,
+                song_pos_pointer: false,
+                song_select: false,
+                tune_request: false,
+                clock: false,
+                start: false,
+                continue_: false,
+                stop: false,
+                sensing: false,
+                reset: false,
+            };
 
-        if let Some(ignores) = matches.values_of("ignore") {
-            for i in ignores {
-                match i {
-                    "note" => ignore.note = true,
-                    "polyat" => ignore.poly_pressure = true,
-                    "cc" => ignore.control_change = true,
-                    "pc" => ignore.program_change = true,
-                    "at" => ignore.channel_pressure = true,
-                    "pb" => ignore.pitch_bend = true,
-                    "sysex" => ignore.sysex = true,
-                    "clock" => ignore.clock = true,
-                    "sensing" => ignore.sensing = true,
-                    "realtime" => {
-                        ignore.clock = true;
-                        ignore.start = true;
-                        ignore.continue_ = true;
-                        ignore.stop = true;
-                        ignore.sensing = true;
-                        ignore.reset = true;
+            if let Some(ignores) = matches.get_many::<String>("ignore") {
+                for i in ignores {
+                    match i.as_str() {
+                        "note" => ignore.note = true,
+                        "polyat" => ignore.poly_pressure = true,
+                        "cc" => ignore.control_change = true,
+                        "pc" => ignore.program_change = true,
+                        "at" => ignore.channel_pressure = true,
+                        "pb" => ignore.pitch_bend = true,
+                        "sysex" => ignore.sysex = true,
+                        "clock" => ignore.clock = true,
+                        "sensing" => ignore.sensing = true,
+                        "realtime" => {
+                            ignore.clock = true;
+                            ignore.start = true;
+                            ignore.continue_ = true;
+                            ignore.stop = true;
+                            ignore.sensing = true;
+                            ignore.reset = true;
+                        }
+                        "transport" => {
+                            ignore.start = true;
+                            ignore.continue_ = true;
+                            ignore.stop = true;
+                        }
+                        "system" => {
+                            ignore.sysex = true;
+                            ignore.mtc_frame = true;
+                            ignore.song_pos_pointer = true;
+                            ignore.song_select = true;
+                            ignore.tune_request = true;
+                            ignore.clock = true;
+                            ignore.start = true;
+                            ignore.continue_ = true;
+                            ignore.stop = true;
+                            ignore.sensing = true;
+                            ignore.reset = true;
+                        }
+                        &_ => (),
                     }
-                    "transport" => {
-                        ignore.start = true;
-                        ignore.continue_ = true;
-                        ignore.stop = true;
-                    }
-                    "system" => {
-                        ignore.sysex = true;
-                        ignore.mtc_frame = true;
-                        ignore.song_pos_pointer = true;
-                        ignore.song_select = true;
-                        ignore.tune_request = true;
-                        ignore.clock = true;
-                        ignore.start = true;
-                        ignore.continue_ = true;
-                        ignore.stop = true;
-                        ignore.sensing = true;
-                        ignore.reset = true;
-                    }
-                    &_ => (),
                 }
-            }
-        };
+            };
 
-        let filter = MessageFilter {
-            channel: if matches.is_present("channel") {
-                Some(value_t!(matches.value_of("channel"), u8).unwrap_or_else(|e| e.exit()))
-            } else {
-                None
-            },
-        };
+            let filter = MessageFilter {
+                channel: if matches.contains_id("channel") {
+                    Some(
+                        matches
+                            .get_one::<u8>("channel")
+                            .expect("Channel argument missing.")
+                            .to_owned(),
+                    )
+                } else {
+                    None
+                },
+            };
 
-        let args = MonitorArgs {
-            port: if matches.is_present("port") {
-                Some(value_t!(matches.value_of("port"), u8).unwrap_or_else(|e| e.exit()))
-            } else {
-                None
-            },
-            format,
-            ignore,
-            filter,
-            quiet: matches.is_present("quiet"),
-        };
-        monitor(args)
+            let args = MonitorArgs {
+                port: if matches.contains_id("port") {
+                    Some(
+                        matches
+                            .get_one::<u8>("port")
+                            .expect("Port argument missing.")
+                            .to_owned(),
+                    )
+                } else {
+                    None
+                },
+                format,
+                ignore,
+                filter,
+                quiet: matches.get_flag("quiet"),
+            };
+            monitor(args)
+        }
     };
 
     match result {

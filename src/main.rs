@@ -62,7 +62,7 @@ fn main() {
                 .short('i')
                 .long("ignore")
                 .value_name("TYPE")
-                .num_args(0..)
+                .num_args(1..)
                 .help("Ignore certain message types")
                 .value_parser([
                     PossibleValue::new("note"),

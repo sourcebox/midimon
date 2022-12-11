@@ -46,9 +46,9 @@ struct MessageFilter {
 
 /// Application main function
 fn main() {
-    let command = Command::new("MIDI monitor")
-        .version("0.1")
-        .author("Oliver Rockstedt <info@sourcebox.de>")
+    let command = Command::new(env!("CARGO_PKG_NAME"))
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
             Arg::new("port")
                 .short('p')

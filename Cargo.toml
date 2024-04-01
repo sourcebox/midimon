@@ -2,7 +2,7 @@
 name = "midimon"
 version = "0.1.2"
 edition = "2018"
-rust-version = "1.60"
+rust-version = "1.74"
 authors = ["Oliver Rockstedt <info@sourcebox.de>"]
 description = "Terminal MIDI Monitor"
 license = "MIT"

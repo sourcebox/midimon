@@ -14,7 +14,7 @@ keywords = ["midi", "monitor", "terminal"]
 [dependencies]
 clap = "4.0"
 midir = "0.9.1"
-num_enum = "0.5"
+num_enum = "0.7.2"
 
 [profile.release]
 lto = true

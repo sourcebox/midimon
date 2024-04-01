@@ -12,7 +12,7 @@ categories = ["command-line-utilities", "multimedia"]
 keywords = ["midi", "monitor", "terminal"]
 
 [dependencies]
-clap = "4.0"
+clap = "4.5.4"
 midir = "0.9.1"
 num_enum = "0.7.2"
 

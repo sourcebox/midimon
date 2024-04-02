@@ -61,7 +61,7 @@ impl MidiMessage {
     }
 
     /// Return note name for note off, on and poly key pressure messages
-    /// Note no 60 is refered as C3
+    /// Note no 60 is referred as C3
     pub fn note_name(&self) -> Option<String> {
         match self.status() {
             Status::NoteOff | Status::NoteOn | Status::PolyKeyPressure => {

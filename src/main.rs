@@ -354,7 +354,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     loop {
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::thread::sleep(core::time::Duration::from_millis(10));
     }
 
     Ok(())

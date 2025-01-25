@@ -8,6 +8,7 @@ const CHANNEL_MASK: u8 = 0x0F;
 /// Representation of the MIDI message.
 #[derive(Debug, Clone)]
 pub struct MidiMessage {
+    /// Message data.
     pub data: Vec<u8>,
 }
 
@@ -119,6 +120,8 @@ impl MidiMessage {
     }
 }
 
+/// Message status.
+#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, TryFromPrimitive)]
 #[repr(u8)]
 pub enum Status {
@@ -130,12 +133,14 @@ pub enum Status {
     ProgramChange = 0xC0,
     ChannelPressure = 0xD0,
     PitchBend = 0xE0,
+
     // System common messages
     MtcQuarterFrame = 0xF1,
     SongPositionPointer = 0xF2,
     SongSelect = 0xF3,
     TuneRequest = 0xF6,
     EndOfExclusive = 0xF7,
+
     // System realtime messages
     TimingClock = 0xF8,
     Start = 0xFA,
@@ -143,8 +148,10 @@ pub enum Status {
     Stop = 0xFC,
     ActiveSensing = 0xFE,
     SystemReset = 0xFF,
+
     // System exclusive messages
     SystemExclusive = 0xF0,
+
     // Error
     Error = 0x00,
 }

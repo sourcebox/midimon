@@ -1,6 +1,3 @@
-extern crate clap;
-extern crate midir;
-
 mod messages;
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};

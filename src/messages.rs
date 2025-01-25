@@ -2,17 +2,17 @@
 
 use num_enum::TryFromPrimitive;
 
-pub const STATUS_MASK: u8 = 0xF0;
-pub const CHANNEL_MASK: u8 = 0x0F;
+const STATUS_MASK: u8 = 0xF0;
+const CHANNEL_MASK: u8 = 0x0F;
 
-/// MIDI message struct
+/// Representation of the MIDI message.
 #[derive(Debug, Clone)]
 pub struct MidiMessage {
     pub data: Vec<u8>,
 }
 
 impl MidiMessage {
-    /// Return message status enum
+    /// Returns the message status.
     pub fn status(&self) -> Status {
         let status_byte = self.data[0];
         let status = if status_byte >= 0xF0 {
@@ -27,7 +27,7 @@ impl MidiMessage {
         }
     }
 
-    /// Return message channel (0-based) or None for system messages
+    /// Returns the message channel (0-based) or `None` for system messages.
     pub fn channel(&self) -> Option<u8> {
         let status_byte = self.data[0];
         if status_byte >= 0xF0 {
@@ -37,30 +37,31 @@ impl MidiMessage {
         }
     }
 
-    /// Return message data byte
+    /// Returns a specific message data byte.
     pub fn data(&self, index: usize) -> u8 {
         self.data[index]
     }
 
-    /// Return message data value as 14-bit value
+    /// Returns the message data as 14-bit value.
     pub fn data_as_u16(&self) -> u16 {
         self.data[1] as u16 | ((self.data[2] as u16) << 7)
     }
 
-    /// Create message from array
+    /// Creates a new message from an array
     pub fn from_array(data: &[u8]) -> MidiMessage {
         MidiMessage {
             data: Vec::from(data),
         }
     }
 
-    /// Create message from vector
+    /// Creates a new message from a `Vec`.
     pub fn from_vec(data: Vec<u8>) -> MidiMessage {
         MidiMessage { data }
     }
 
-    /// Return note name for note off, on and poly key pressure messages
-    /// Note no 60 is referred as C3
+    /// Returns the note name for *Note Off*, *Note On* and *Poly Key Pressure* messages.
+    ///
+    /// Note no 60 is referred as C3.
     pub fn note_name(&self) -> Option<String> {
         match self.status() {
             Status::NoteOff | Status::NoteOn | Status::PolyKeyPressure => {
@@ -75,7 +76,8 @@ impl MidiMessage {
         }
     }
 
-    /// Return name for most common control change messages
+    /// Returns the name for most common control change messages.
+    ///
     /// An empty string is returned for other controller numbers
     pub fn cc_name(&self) -> Option<String> {
         match self.status() {

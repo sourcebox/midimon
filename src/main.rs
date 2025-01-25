@@ -7,7 +7,7 @@ use midir::{ConnectError, MidiInput, MidiInputConnection};
 
 use messages::{MidiMessage, Status};
 
-/// Display format options
+/// Display format options.
 #[derive(Debug, Copy, Clone)]
 enum DisplayFormat {
     Default,
@@ -16,7 +16,7 @@ enum DisplayFormat {
     MinHex,
 }
 
-/// Ignore flags for certain message types
+/// Ignore flags for certain message types.
 #[derive(Debug, Copy, Clone)]
 struct MessageIgnore {
     note: bool,
@@ -38,13 +38,13 @@ struct MessageIgnore {
     reset: bool,
 }
 
-/// Filter to show only certain message types
+/// Filter to show only certain message types.
 #[derive(Debug, Copy, Clone)]
 struct MessageFilter {
     channel: Option<u8>,
 }
 
-/// Application main function
+/// Application entry point.
 fn main() {
     let command = Command::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
@@ -228,7 +228,7 @@ fn main() {
     }
 }
 
-/// List all available input ports
+/// Lists all available input ports.
 fn list_ports() -> Result<(), Box<dyn std::error::Error>> {
     println!("Available input ports:");
 
@@ -241,7 +241,7 @@ fn list_ports() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// Monitor function arguments
+// Monitor function arguments.
 #[derive(Debug)]
 struct MonitorArgs {
     port: Option<u8>,
@@ -251,7 +251,7 @@ struct MonitorArgs {
     quiet: bool,
 }
 
-/// Monitor one or multiple input ports
+/// Monitors one or multiple input ports.
 #[allow(unreachable_code)]
 fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     let midi_in = MidiInput::new("midimon input")?;
@@ -360,7 +360,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Arguments for on_receive() callback function
+/// Arguments for the `on_receive()` callback function.
 #[derive(Debug)]
 struct ReceiveArgs {
     port_id: usize,
@@ -369,7 +369,7 @@ struct ReceiveArgs {
     filter: MessageFilter,
 }
 
-/// Receive callback function
+/// Receive callback function.
 fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
     let status = if message[0] >= 0xF0 {
         message[0]
@@ -459,7 +459,7 @@ fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
     }
 }
 
-/// Display message in default format
+/// Displays a message in default format.
 fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
     let msg = MidiMessage::from_array(message);
 
@@ -518,7 +518,7 @@ fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
     );
 }
 
-/// Display message in raw format
+/// Displays a message in raw format.
 fn display_raw(port_id: usize, timestamp: u64, message: &[u8]) {
     println!(
         "  ({})  {:10.6}   {:?}",
@@ -528,7 +528,7 @@ fn display_raw(port_id: usize, timestamp: u64, message: &[u8]) {
     );
 }
 
-/// Display message in min format
+/// Displays a message in min format.
 fn display_min(message: &[u8]) {
     let mut msg = Vec::<String>::new();
 
@@ -539,7 +539,7 @@ fn display_min(message: &[u8]) {
     println!("{}", msg.join(", "));
 }
 
-/// Display message in min hex format
+/// Displays a message in min hex format.
 fn display_min_hex(message: &[u8]) {
     let mut msg = Vec::<String>::new();
 

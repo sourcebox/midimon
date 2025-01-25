@@ -1,4 +1,4 @@
-mod messages;
+pub mod messages;
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
 use midir::{ConnectError, MidiInput, MidiInputConnection};

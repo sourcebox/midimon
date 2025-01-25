@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use num_enum::TryFromPrimitive;
 
 pub const STATUS_MASK: u8 = 0xF0;

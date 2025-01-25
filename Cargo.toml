@@ -19,3 +19,11 @@ num_enum = "0.7.3"
 [profile.release]
 lto = true
 strip = true
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_code = "deny"
+
+[lints.clippy]
+missing_docs_in_private_items = "warn"
+std_instead_of_core = "warn"

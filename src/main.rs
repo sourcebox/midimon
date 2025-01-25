@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 pub mod messages;
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};

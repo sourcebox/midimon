@@ -1,3 +1,5 @@
+//! MIDI message definitions and conversions.
+
 use num_enum::TryFromPrimitive;
 
 pub const STATUS_MASK: u8 = 0xF0;

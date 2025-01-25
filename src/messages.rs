@@ -6,7 +6,7 @@ pub const STATUS_MASK: u8 = 0xF0;
 pub const CHANNEL_MASK: u8 = 0x0F;
 
 /// MIDI message struct
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct MidiMessage {
     pub data: Vec<u8>,
 }
@@ -117,7 +117,7 @@ impl MidiMessage {
     }
 }
 
-#[derive(Clone, Copy, TryFromPrimitive)]
+#[derive(Debug, Clone, Copy, TryFromPrimitive)]
 #[repr(u8)]
 pub enum Status {
     // Channel messages

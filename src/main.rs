@@ -1,11 +1,12 @@
 mod messages;
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
-use messages::{MidiMessage, Status};
 use midir::{ConnectError, MidiInput, MidiInputConnection};
 
+use messages::{MidiMessage, Status};
+
 /// Display format options
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 enum DisplayFormat {
     Default,
     Raw,
@@ -14,7 +15,7 @@ enum DisplayFormat {
 }
 
 /// Ignore flags for certain message types
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 struct MessageIgnore {
     note: bool,
     poly_pressure: bool,
@@ -36,7 +37,7 @@ struct MessageIgnore {
 }
 
 /// Filter to show only certain message types
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 struct MessageFilter {
     channel: Option<u8>,
 }
@@ -239,6 +240,7 @@ fn list_ports() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 // Monitor function arguments
+#[derive(Debug)]
 struct MonitorArgs {
     port: Option<u8>,
     format: DisplayFormat,
@@ -357,6 +359,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Arguments for on_receive() callback function
+#[derive(Debug)]
 struct ReceiveArgs {
     port_id: usize,
     format: DisplayFormat,

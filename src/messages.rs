@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 
 use num_enum::TryFromPrimitive;
-use std::convert::TryFrom;
 
 pub const STATUS_MASK: u8 = 0xF0;
 pub const CHANNEL_MASK: u8 = 0x0F;

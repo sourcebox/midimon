@@ -273,8 +273,8 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     for (i, in_port) in midi_in.ports().iter().enumerate() {
         let midi_in = MidiInput::new("midimon input")?;
         let port_name = midi_in.port_name(in_port)?;
-        let add_connection = if let Some(port_id) = args.port {
-            port_id == i as u8
+        let add_connection = if let Some(port_index) = args.port {
+            port_index == i as u8
         } else {
             true
         };
@@ -285,7 +285,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
             }
 
             let receive_args = ReceiveArgs {
-                port_id: i,
+                port_index: i,
                 sender: sender.clone(),
                 ignore: args.ignore,
                 filter: args.filter,
@@ -359,11 +359,11 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         while let Ok(message) = receiver.try_recv() {
-            let (port_id, timestamp, ref message) = message;
+            let (port_index, timestamp, ref message) = message;
 
             match args.format {
-                DisplayFormat::Default => display_default(port_id, timestamp, message),
-                DisplayFormat::Raw => display_raw(port_id, timestamp, message),
+                DisplayFormat::Default => display_default(port_index, timestamp, message),
+                DisplayFormat::Raw => display_raw(port_index, timestamp, message),
                 DisplayFormat::Min => display_min(message),
                 DisplayFormat::MinHex => display_min_hex(message),
             }
@@ -378,7 +378,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 /// Arguments for the `on_receive()` callback function.
 #[derive(Debug)]
 struct ReceiveArgs {
-    port_id: usize,
+    port_index: usize,
     sender: Sender<(usize, u64, Vec<u8>)>,
     ignore: MessageIgnore,
     filter: MessageFilter,
@@ -467,12 +467,12 @@ fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
     }
 
     args.sender
-        .send((args.port_id, timestamp, Vec::from(message)))
+        .send((args.port_index, timestamp, Vec::from(message)))
         .ok();
 }
 
 /// Displays a message in default format.
-fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
+fn display_default(port_index: usize, timestamp: u64, message: &[u8]) {
     let msg = MidiMessage::from_array(message);
 
     let status_text = format!("{}", msg.status());
@@ -523,7 +523,7 @@ fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
 
     println!(
         "  ({})  {:10.6}  {:21}  {}",
-        port_id,
+        port_index,
         timestamp as f64 / 1e6,
         status_text,
         data_text
@@ -531,10 +531,10 @@ fn display_default(port_id: usize, timestamp: u64, message: &[u8]) {
 }
 
 /// Displays a message in raw format.
-fn display_raw(port_id: usize, timestamp: u64, message: &[u8]) {
+fn display_raw(port_index: usize, timestamp: u64, message: &[u8]) {
     println!(
         "  ({})  {:10.6}   {:?}",
-        port_id,
+        port_index,
         timestamp as f64 / 1e6,
         message
     );

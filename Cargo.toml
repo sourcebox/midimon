@@ -12,9 +12,9 @@ categories = ["command-line-utilities", "multimedia"]
 keywords = ["midi", "monitor", "terminal"]
 
 [dependencies]
-clap = "4.5.32"
-midir = "0.9.1"
-num_enum = "0.7.3"
+clap = "4.5.43"
+midir = "0.10.2"
+num_enum = "0.7.4"
 
 [profile.release]
 lto = true

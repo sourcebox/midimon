@@ -234,7 +234,7 @@ fn main() {
 }
 
 /// Lists all available input ports.
-fn list_ports() -> Result<(), Box<dyn std::error::Error>> {
+fn list_ports() -> Result<(), Box<dyn core::error::Error>> {
     println!("Available input ports:");
 
     let midi_in = MidiInput::new("midimon input")?;
@@ -258,7 +258,7 @@ struct MonitorArgs {
 
 /// Monitors one or multiple input ports.
 #[allow(unreachable_code)]
-fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
+fn monitor(args: MonitorArgs) -> Result<(), Box<dyn core::error::Error>> {
     let mut connections = HashMap::new();
     let (sender, receiver) = mpsc::channel();
 

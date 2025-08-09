@@ -2,8 +2,10 @@
 
 pub mod messages;
 
+use core::time::Duration;
 use std::collections::HashMap;
 use std::sync::mpsc::{self, Sender};
+use std::time::Instant;
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
 use midir::MidiInput;
@@ -257,45 +259,10 @@ struct MonitorArgs {
 /// Monitors one or multiple input ports.
 #[allow(unreachable_code)]
 fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
-    let midi_in = MidiInput::new("midimon input")?;
-
     let mut connections = HashMap::new();
     let (sender, receiver) = mpsc::channel();
 
     let show_info = !args.quiet;
-
-    if show_info {
-        println!("Active input ports:");
-    }
-
-    for (i, in_port) in midi_in.ports().iter().enumerate() {
-        let midi_in = MidiInput::new("midimon input")?;
-        let port_id = in_port.id();
-        let port_name = midi_in.port_name(in_port)?;
-        let add_connection = if let Some(port_index) = args.port {
-            port_index == i as u8
-        } else {
-            true
-        };
-
-        if add_connection && !connections.contains_key(&port_id) {
-            if show_info {
-                println!("  ({}) {}", i, port_name);
-            }
-
-            let receive_args = ReceiveArgs {
-                port_index: i,
-                sender: sender.clone(),
-                ignore: args.ignore,
-                filter: args.filter,
-            };
-
-            connections.insert(
-                port_id,
-                midi_in.connect(in_port, "input monitor", on_receive, receive_args),
-            );
-        }
-    }
 
     if show_info {
         let mut ignore_info: Vec<String> = Vec::new();
@@ -360,7 +327,55 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
         println!("Listening... Press Ctrl-C to exit.");
     }
 
+    let scan_input = MidiInput::new("midimon input")?;
+    let mut last_port_scan = Instant::now();
+
     loop {
+        // Scan the ports and update the connections list.
+        if last_port_scan.elapsed() >= Duration::from_millis(500) {
+            last_port_scan = Instant::now();
+
+            let mut available_ports = HashMap::new();
+
+            for in_port in scan_input.ports().iter() {
+                available_ports.insert(in_port.id(), ());
+            }
+
+            // Remove ports that are not available anymore.
+            connections = connections
+                .extract_if(|key, _| available_ports.contains_key(key))
+                .collect();
+
+            for (i, in_port) in scan_input.ports().iter().enumerate() {
+                let midi_in = MidiInput::new("midimon input")?;
+                let port_id = in_port.id();
+                let port_name = midi_in.port_name(in_port)?;
+                let add_connection = if let Some(port_index) = args.port {
+                    port_index == i as u8
+                } else {
+                    true
+                };
+
+                if add_connection && !connections.contains_key(&port_id) {
+                    if show_info {
+                        println!("  ({}) {}", i, port_name);
+                    }
+
+                    let receive_args = ReceiveArgs {
+                        port_index: i,
+                        sender: sender.clone(),
+                        ignore: args.ignore,
+                        filter: args.filter,
+                    };
+
+                    connections.insert(
+                        port_id,
+                        midi_in.connect(in_port, "input monitor", on_receive, receive_args),
+                    );
+                }
+            }
+        }
+
         while let Ok(message) = receiver.try_recv() {
             let (port_index, timestamp, ref message) = message;
 

@@ -2,6 +2,8 @@
 
 pub mod messages;
 
+use std::sync::mpsc::{self, Sender};
+
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
 use midir::{ConnectError, MidiInput, MidiInputConnection};
 
@@ -260,6 +262,8 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 
     let mut connections = Vec::<Connection>::new();
 
+    let (sender, receiver) = mpsc::channel();
+
     let show_info = !args.quiet;
 
     if show_info {
@@ -282,7 +286,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 
             let receive_args = ReceiveArgs {
                 port_id: i,
-                format: args.format,
+                sender: sender.clone(),
                 ignore: args.ignore,
                 filter: args.filter,
             };
@@ -354,6 +358,17 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     loop {
+        while let Ok(message) = receiver.try_recv() {
+            let (port_id, timestamp, ref message) = message;
+
+            match args.format {
+                DisplayFormat::Default => display_default(port_id, timestamp, message),
+                DisplayFormat::Raw => display_raw(port_id, timestamp, message),
+                DisplayFormat::Min => display_min(message),
+                DisplayFormat::MinHex => display_min_hex(message),
+            }
+        }
+
         std::thread::sleep(core::time::Duration::from_millis(10));
     }
 
@@ -364,7 +379,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 #[derive(Debug)]
 struct ReceiveArgs {
     port_id: usize,
-    format: DisplayFormat,
+    sender: Sender<(usize, u64, Vec<u8>)>,
     ignore: MessageIgnore,
     filter: MessageFilter,
 }
@@ -451,12 +466,9 @@ fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
         }
     }
 
-    match args.format {
-        DisplayFormat::Default => display_default(args.port_id, timestamp, message),
-        DisplayFormat::Raw => display_raw(args.port_id, timestamp, message),
-        DisplayFormat::Min => display_min(message),
-        DisplayFormat::MinHex => display_min_hex(message),
-    }
+    args.sender
+        .send((args.port_id, timestamp, Vec::from(message)))
+        .ok();
 }
 
 /// Displays a message in default format.

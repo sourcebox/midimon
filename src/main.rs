@@ -2,10 +2,11 @@
 
 pub mod messages;
 
+use std::collections::HashMap;
 use std::sync::mpsc::{self, Sender};
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
-use midir::{ConnectError, MidiInput, MidiInputConnection};
+use midir::MidiInput;
 
 use messages::{MidiMessage, Status};
 
@@ -258,10 +259,7 @@ struct MonitorArgs {
 fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
     let midi_in = MidiInput::new("midimon input")?;
 
-    type Connection = Result<MidiInputConnection<ReceiveArgs>, ConnectError<MidiInput>>;
-
-    let mut connections = Vec::<Connection>::new();
-
+    let mut connections = HashMap::new();
     let (sender, receiver) = mpsc::channel();
 
     let show_info = !args.quiet;
@@ -272,6 +270,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
 
     for (i, in_port) in midi_in.ports().iter().enumerate() {
         let midi_in = MidiInput::new("midimon input")?;
+        let port_id = in_port.id();
         let port_name = midi_in.port_name(in_port)?;
         let add_connection = if let Some(port_index) = args.port {
             port_index == i as u8
@@ -279,7 +278,7 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
             true
         };
 
-        if add_connection {
+        if add_connection && !connections.contains_key(&port_id) {
             if show_info {
                 println!("  ({}) {}", i, port_name);
             }
@@ -290,7 +289,11 @@ fn monitor(args: MonitorArgs) -> Result<(), Box<dyn std::error::Error>> {
                 ignore: args.ignore,
                 filter: args.filter,
             };
-            connections.push(midi_in.connect(in_port, "input monitor", on_receive, receive_args));
+
+            connections.insert(
+                port_id,
+                midi_in.connect(in_port, "input monitor", on_receive, receive_args),
+            );
         }
     }
 

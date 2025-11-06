@@ -18,8 +18,8 @@ Use `cargo build` to compile or `cargo run` to compile and run.
 
 ### Tested target platforms
 
-- Linux Mint 21.3
-- macOS 10.13 (High Sierra)
+- Linux Mint 22.4
+- macOS 14
 - Windows 10
 
 Other OS versions will most likely work, but were not tested explicitly.

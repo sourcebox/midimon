@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use std::sync::mpsc::{self, Sender};
 use std::time::Instant;
 
-use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command, builder::PossibleValue, value_parser};
 use midir::MidiInput;
 
 use messages::{MidiMessage, Status};
@@ -478,10 +478,11 @@ fn on_receive(timestamp: u64, message: &[u8], args: &mut ReceiveArgs) {
         return;
     }
 
-    if let Some(channel) = args.filter.channel {
-        if (message[0] <= Status::SystemExclusive as u8) && (message[0] & 0x0F != channel - 1) {
-            return;
-        }
+    if let Some(channel) = args.filter.channel
+        && (message[0] <= Status::SystemExclusive as u8)
+        && (message[0] & 0x0F != channel - 1)
+    {
+        return;
     }
 
     args.sender
